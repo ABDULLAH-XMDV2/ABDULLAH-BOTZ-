@@ -1,0 +1,19 @@
+{
+  "name": "abdullah-botz",
+  "version": "9.0.0",
+  "description": "ABDULLAH-BOTZ WhatsApp bot created by ABDULLAH Official",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "latest",
+    "axios": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "form-data": "latest",
+    "pino": "latest",
+    "wa-sticker-formatter": "latest"
+  }
+}

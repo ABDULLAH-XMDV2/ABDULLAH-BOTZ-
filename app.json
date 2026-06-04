@@ -1,0 +1,32 @@
+{
+  "name": "ABDULLAH-BOTZ",
+  "description": "ABDULLAH-BOTZ WhatsApp bot made by ABDULLAH official",
+  "version": "9.0.0",
+  "keywords": ["bot", "ABDULLAH-BOTZ", "Abdullah-MD", "whatsapp"],
+  "env": {
+    "OWNER_NUMBER": {
+      "description": "Your WhatsApp number with country code (no +). Example: 923041956023",
+      "required": true
+    },
+    "OWNER_NAME": {
+      "description": "Your name",
+      "value": "ABDULLAH"
+    },
+    "BOT_NAME": {
+      "description": "Bot display name",
+      "value": "ABDULLAH-BOTZ"
+    },
+    "PREFIX": {
+      "description": "Command prefix",
+      "value": "."
+    },
+    "MODE": {
+      "description": "public or private",
+      "value": "public"
+    },
+    "GROQ_API_KEY": {
+      "description": "Groq AI API key (free at console.groq.com)",
+      "required": false
+    }
+  }
+}
