@@ -191,3 +191,107 @@ cmd({
 });
 
 module.exports = {};
+
+// ============ IMGHOST — Public command ============
+cmd({
+  pattern: "imghost",
+  alias: ["imgupload", "uploadimg"],
+  react: "🖼",
+  desc: "Upload image and get a hosted URL",
+  category: "tools",
+  use: ".imghost (reply to image)",
+  filename: __filename
+}, async (conn, mek, m, { from, quoted, reply }) => {
+  try {
+    const msg = quoted || mek;
+    const type = Object.keys(msg.message || {})[0];
+    if (!type?.includes('image')) return reply("❌ *Kisi image ko reply kar ke .imghost likho!*");
+    
+    reply("⏳ *Uploading image...*");
+    const buffer = await conn.downloadMediaMessage(msg, "buffer");
+    const axios = require("axios");
+    const FormData = require("form-data");
+    
+    // imgbb free API
+    const form = new FormData();
+    form.append("image", buffer.toString("base64"));
+    const { data } = await axios.post(
+      "https://api.imgbb.com/1/upload?key=your_imgbb_key_here",
+      form,
+      { headers: form.getHeaders(), timeout: 20000 }
+    ).catch(() => ({ data: null }));
+    
+    let url = data?.data?.url;
+    
+    // Fallback: catbox.moe (no key needed)
+    if (!url) {
+      const form2 = new FormData();
+      form2.append("reqtype", "fileupload");
+      form2.append("fileToUpload", buffer, { filename: "image.jpg", contentType: "image/jpeg" });
+      const res2 = await axios.post("https://catbox.moe/user/api.php", form2, {
+        headers: form2.getHeaders(), timeout: 20000
+      });
+      url = res2.data;
+    }
+    
+    if (!url) return reply("❌ *Upload fail hua, try again!*");
+    reply(`✅ *Image Hosted!*\n\n🔗 *URL:* ${url}\n\n> ABDULLAH-BOTZ`);
+  } catch(e) {
+    reply(`❌ *Error:* ${e.message}`);
+  }
+});
+
+// ============ ANTIBUG — Public command ============
+cmd({
+  pattern: "antibug",
+  alias: ["fixbug", "clearbug"],
+  react: "🛡",
+  desc: "Send anti-bug/anti-crash protection message",
+  category: "tools",
+  use: ".antibug",
+  filename: __filename
+}, async (conn, mek, m, { from, reply }) => {
+  try {
+    // Send a protective vCard that clears WhatsApp bugs/crashes
+    const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:ANTI BUG\nORG:ABDULLAH-BOTZ;\nTEL;type=CELL;type=VOICE;waid=0:+0\nEND:VCARD`;
+    await conn.sendMessage(from, {
+      contacts: {
+        displayName: "ANTI BUG",
+        contacts: [{ vcard }]
+      }
+    }, { quoted: mek });
+    reply("✅ *Anti-Bug sent! WhatsApp crash/bug fix ho gaya.*\n> ABDULLAH-BOTZ");
+  } catch(e) {
+    reply(`❌ Error: ${e.message}`);
+  }
+});
+
+
+// ============ PAIR — Public command (anyone can pair) ============
+cmd({
+  pattern: "pair",
+  alias: ["paircode", "getpair"],
+  react: "📱",
+  desc: "Get pairing code for your number",
+  category: "main",
+  use: ".pair <number>  Example: .pair 923041956023",
+  filename: __filename
+}, async (conn, mek, m, { from, args, reply }) => {
+  const num = args[0]?.replace(/[^0-9]/g, "");
+  if (!num || num.length < 10) return reply("❌ *Usage: .pair 923041956023*\nCountry code ke saath number do.");
+  try {
+    reply("⏳ *Pairing code generate ho raha hai...*");
+    const code = await conn.requestPairingCode(num);
+    if (!code) return reply("❌ *Code generate nahi hua, try again!*");
+    const fmt = code.length === 8 ? code.slice(0,4) + "-" + code.slice(4) : code;
+    
+    // ✅ Register this number as paired (for private mode access)
+    if (!global.pairedNumbers) global.pairedNumbers = new Set();
+    global.pairedNumbers.add(num);
+    
+    reply(`*╭── 📱 PAIRING CODE ──*\n*│*\n*│*  *${fmt}*\n*│*\n*╰──────────────*\n\n*Steps:*\n1. WhatsApp kholo\n2. Menu (⋮) → Linked Devices\n3. Link with phone number\n4. Code enter karo\n\n⏰ *60 seconds mein enter karo!*\n> ABDULLAH-BOTZ`);
+  } catch(e) {
+    reply(`❌ *Error:* ${e.message}`);
+  }
+});
+
