@@ -1013,7 +1013,7 @@ filter:blur(80px);opacity:.15;
       <p>Pakistan ka #1 WhatsApp Bot. Auto-pair, 500+ commands, AI powered. By ABDULLAH Official.</p>
       <div class="social-links" style="margin-top:20px">
         <a href="https://github.com/ABDULLAH-XMD/ABDULLAH-BOTZ-V2" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="https://Instagram.com/arslanHDJ2O1l" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://Instagram.com/abdullahHDJ2O1l" target="_blank"><i class="fab fa-instagram"></i></a>
         <a href="https://whatsapp.com/channel/0029VbCBz2LJpe8jIivIFL2H" target="_blank"><i class="fab fa-whatsapp"></i></a>
       </div>
     </div>
@@ -1118,36 +1118,52 @@ let timerInt, countdown=60;
 async function generateCode(){
   const phone=document.getElementById('phoneInput').value.trim();
   const cc=document.getElementById('countryCode').value;
-  if(!phone||phone.length<9){showToast('Valid phone number enter karo!','error');return;}
+  if(!phone||phone.length<6){showToast('Valid phone number enter karo!','error');return;}
   const fullNum=cc+phone;
   const btn=document.getElementById('genBtn');
   const txt=document.getElementById('genBtnText');
   txt.innerHTML='<span class="spin"></span> Generating...';
   btn.disabled=true;
   try{
-    // Try actual API call to the bot's pairing endpoint
-    const res=await fetch(`/pair?number=${fullNum}`,{method:'GET'}).catch(()=>null);
-    let code;
-    if(res&&res.ok){
-      const data=await res.json().catch(()=>null);
-      code=data?.code||data?.pairCode||data?.pair_code;
+    // ✅ REAL API call — no fake fallback
+    const res=await fetch(`/pair?number=${fullNum}`,{method:'GET'});
+    const data=await res.json().catch(()=>null);
+
+    if(!res.ok){
+      // Server returned error — show exact message
+      const msg=data?.error||'Server error, try again';
+      showToast('❌ '+msg,'error');
+      txt.innerHTML='⚡ GENERATE PAIRING CODE';
+      btn.disabled=false;
+      return;
     }
-    // Fallback: show demo code with instruction
+
+    // Already connected
+    if(data?.connected){
+      showToast('✅ Bot already connected!','success');
+      txt.innerHTML='⚡ GENERATE PAIRING CODE';
+      btn.disabled=false;
+      return;
+    }
+
+    const code=data?.code;
     if(!code){
-      // Generate a realistic-looking demo code
-      const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-      const p1=Array.from({length:4},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
-      const p2=Array.from({length:4},()=>chars[Math.floor(Math.random()*chars.length)]).join('');
-      code=`${p1}-${p2}`;
+      showToast('❌ Code nahi mila, thoda wait karo aur retry karo','error');
+      txt.innerHTML='⚡ GENERATE PAIRING CODE';
+      btn.disabled=false;
+      return;
     }
+
+    // ✅ Real code — show it
     document.getElementById('pairCodeDisplay').textContent=code;
     document.getElementById('resultBox').classList.add('show');
     startTimer();
-    showToast('Pairing code ready! 60 seconds mein enter karo','success');
+    showToast('✅ Real pairing code ready! 60 seconds mein WhatsApp mein enter karo','success');
+
   }catch(e){
-    showToast('Error: Bot server se connect nahi ho saka','error');
+    showToast('❌ Bot se connect nahi ho saka: '+e.message,'error');
   }finally{
-    txt.innerHTML='⚡ GENERATE NEW CODE';
+    txt.innerHTML='⚡ GENERATE PAIRING CODE';
     btn.disabled=false;
   }
 }
