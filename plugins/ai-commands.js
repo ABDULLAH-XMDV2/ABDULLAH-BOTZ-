@@ -3,7 +3,7 @@ const axios = require('axios');
 const config = require('../setting');
 
 // ============ GROQ AI HELPER ============
-const GROQ_API_KEY = process.env.GROQ_API_KEY || "";
+const GROQ_API_KEY = process.env.GROQ_API_KEY || "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";
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 async function askGroq(prompt, systemPrompt = "You are a helpful AI assistant. Reply concisely and clearly.", model = "llama3-8b-8192") {
